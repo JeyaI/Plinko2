@@ -1,0 +1,191 @@
+#include "model.h"
+
+Model::Model(){
+    go = false;
+
+    lineSegments.push_back({{-100.0, 601.0},{1640.0, 440.0}});
+
+    Disk d{{321,40}, 20, {0,0}, false};
+
+    disks.push_back(d);
+
+    Disk d2{{160,25}, 15, {0,0}, false};
+
+    disks.push_back(d2);
+
+    for(int i = 0; i < 7; i++){
+        bool doOffset = !(i % 2);
+        
+        int startX = 100;
+        if(doOffset){
+            startX = 135;
+        }
+
+        for(int j = 0; j < 6 || j < 7 && !doOffset; j++){
+            Disk s{{startX + j * 70.0, 100 + i * 80.0}, 4, {0,0}, true};
+            disks.push_back(s);
+        }
+        
+    }
+
+    for(int l = 40; l < 640; l += 50){
+        Disk x{{(double)l + 1.0, 40 + l/50 * 2.0}, 20, {0,0}, false};
+        disks.push_back(x);
+    }
+
+    /*Disk d1{{1.0, 620}, 20, {400, -100}, false};
+    Disk d2{{600.0, 620}, 20, {-100, -170}, false};*/
+
+    /*Disk d1{{30, 10}, 20, {0.0, 0.0}, false};
+    Disk d2{{55, 620}, 20, {0.0, 0.0}, false};
+
+    disks.push_back(d2);
+    disks.push_back(d1);*/
+
+    /*Disk d1{{30, 620}, 20, {100.0,0.0}, false};
+    disks.push_back(d1);
+    for(int i = 0; i < 10; i++){
+        Disk d{{100 + i * 50.0, 620}, 20, {0.0,0.0}, false};
+        disks.push_back(d);
+    }*/
+
+}
+
+void Model::step(){
+    if(!go){
+        return;
+    }
+
+    std::vector<std::pair<Disk*,Disk*>> dynamicCollisions;
+
+    for(unsigned int i = 0; i < disks.size(); i++){
+        Disk& iDisk = disks[i];
+
+        if(!iDisk.isStatic){
+            iDisk.velocity.y += 100 * 0.001; //TODO replace with deltatime
+            iDisk.origin.y += iDisk.velocity.y * 0.001;
+            iDisk.origin.x += iDisk.velocity.x * 0.001;
+        }
+
+        for(unsigned int j = 0; j < disks.size(); j++){
+            if(iDisk.isStatic == true){
+                break;
+            }
+            if(i == j){
+                continue;
+            }
+            Disk& jDisk = disks[j];
+            
+            //std::cout << "Distance Squared: " << (iDisk.origin.x - jDisk.origin.x) * (iDisk.origin.x - jDisk.origin.x) + (iDisk.origin.y - jDisk.origin.y) * (iDisk.origin.y - jDisk.origin.y) << "\n";
+            //std::cout << "Combined Radius Squared: " << (jDisk.radius + iDisk.radius) * (jDisk.radius + iDisk.radius) << "\n"; 
+            double distanceSquared = (iDisk.origin.x - jDisk.origin.x) * (iDisk.origin.x - jDisk.origin.x) + (iDisk.origin.y - jDisk.origin.y) * (iDisk.origin.y - jDisk.origin.y);
+
+            if((jDisk.radius + iDisk.radius) * (jDisk.radius + iDisk.radius) > distanceSquared){
+                Vec2D normal;
+                normal.x = jDisk.origin.x - iDisk.origin.x;
+                normal.y = jDisk.origin.y - iDisk.origin.y;
+                
+                if(jDisk.isStatic){
+                    //iDisk.velocity = reflection(normal, iDisk.velocity);
+                    Vec2D prescaleVelocity = reflectionDampened(normal, iDisk.velocity, 0.6);
+                    /*iDisk.velocity.x = prescaleVelocity.x * 0.6;
+                    iDisk.velocity.y = prescaleVelocity.y * 0.6;*/
+                    iDisk.velocity = prescaleVelocity;
+                    double overlap = jDisk.radius + iDisk.radius - sqrt(distanceSquared); 
+
+                    iDisk.origin.x -= overlap * (normal.x)/(sqrt(distanceSquared));
+                    iDisk.origin.y -= overlap * (normal.y)/(sqrt(distanceSquared));
+                }else{
+                    double overlap = 0.5 * (jDisk.radius + iDisk.radius - sqrt(distanceSquared)); 
+
+                    iDisk.origin.x -= overlap * (normal.x)/(sqrt(distanceSquared));
+                    iDisk.origin.y -= overlap * (normal.y)/(sqrt(distanceSquared));
+
+                    jDisk.origin.x += overlap * (normal.x)/(sqrt(distanceSquared));
+                    jDisk.origin.y += overlap * (normal.y)/(sqrt(distanceSquared));
+
+                    bool alreadyAdded = false;
+                    for(int k = 0; k < dynamicCollisions.size(); k++){
+                        std::pair<Disk*,Disk*> p{&disks[j], &disks[i]};
+                        if(dynamicCollisions[k] == p){
+                            alreadyAdded = true;
+                        }
+                    }
+
+                    if(!alreadyAdded){
+                        dynamicCollisions.push_back({&disks[i], &disks[j]});
+                    }
+                }
+            }
+
+        }
+
+        for(unsigned int l = 0; l < lineSegments.size(); l++){
+            //double distancep = distance(iDisk.origin, lineSegments[l]);
+            //std::cout << "\t" << distancep << "\n";
+            if(distance(iDisk.origin, lineSegments[l]) <= iDisk.radius) { //collision
+                double m = (lineSegments[l].pointA.y - lineSegments[l].pointB.y)/(lineSegments[l].pointA.x - lineSegments[l].pointB.x);
+                iDisk.velocity = reflectionDampened({1, -1.0 / m}, iDisk.velocity, 0.6);
+                double overlap = iDisk.radius - distance(iDisk.origin, lineSegments[l]);
+                double magnitude = sqrt((1 * -1.0 / m) * (1 * -1.0 / m));
+                double normalNormX = 1.0 / magnitude;
+                double normalNormY = (-1.0/m) / magnitude;
+                iDisk.origin.x -= overlap * normalNormX;
+                iDisk.origin.y -= overlap * normalNormY;
+            }
+        }
+
+        if(iDisk.origin.y + iDisk.radius >= 640){
+            iDisk.velocity = reflectionDampened({0, -1.0}, iDisk.velocity, 0.6);
+            /*iDisk.velocity.x *= 7.0/8.0;
+            iDisk.velocity.y *= 7.0/8.0;*/
+
+            iDisk.origin.y = 640 - iDisk.radius;
+        }
+
+        if(iDisk.origin.x + iDisk.radius >= 640){
+            iDisk.velocity = reflectionDampened({-1.0, 0}, iDisk.velocity, 0.6);
+            /*iDisk.velocity.x *= 5.0/8.0;
+            iDisk.velocity.y *= 5.0/8.0;*/
+
+            iDisk.origin.x = 640 - iDisk.radius;
+        }
+
+        if(iDisk.origin.x - iDisk.radius <= 0){
+            iDisk.velocity = reflectionDampened({1.0, 0}, iDisk.velocity, 0.6);
+            /*iDisk.velocity.x *= 5.0/8.0;
+            iDisk.velocity.x *= 5.0/8.0;*/
+
+            iDisk.origin.x = iDisk.radius;
+        }
+
+    }
+
+    for(auto& collision : dynamicCollisions){
+        //TODO derive this and use masses
+        Disk* disk1 = collision.first;
+        Disk* disk2 = collision.second;
+
+        double distanceSquared = (disk1->origin.x - disk2->origin.x) * (disk1->origin.x - disk2->origin.x) + (disk1->origin.y - disk2->origin.y) * (disk1->origin.y - disk2->origin.y);
+
+        Vec2D velocity1prime;
+        Vec2D velocity2prime;
+        //TODO make this more realistic
+        velocity1prime.x = disk1->velocity.x - /*7.0/8.0 **/ ((disk1->velocity.x - disk2->velocity.x) * (disk1->origin.x - disk2->origin.x) + (disk1->velocity.y - disk2->velocity.y) * (disk1->origin.y - disk2->origin.y)) * (disk1->origin.x - disk2->origin.x) / distanceSquared;
+        velocity1prime.y = disk1->velocity.y - /*7.0/8.0 **/ ((disk1->velocity.x - disk2->velocity.x) * (disk1->origin.x - disk2->origin.x) + (disk1->velocity.y - disk2->velocity.y) * (disk1->origin.y - disk2->origin.y)) * (disk1->origin.y - disk2->origin.y) / distanceSquared;
+
+        velocity2prime.x = disk2->velocity.x - /*7.0/8.0 **/ ((disk2->velocity.x - disk1->velocity.x) * (disk2->origin.x - disk1->origin.x) + (disk2->velocity.y - disk1->velocity.y) * (disk2->origin.y - disk1->origin.y)) * (disk2->origin.x - disk1->origin.x) / distanceSquared;
+        velocity2prime.y = disk2->velocity.y - /*7.0/8.0 **/ ((disk2->velocity.x - disk1->velocity.x) * (disk2->origin.x - disk1->origin.x) + (disk2->velocity.y - disk1->velocity.y) * (disk2->origin.y - disk1->origin.y)) * (disk2->origin.y - disk1->origin.y) / distanceSquared;
+        //(disk2->velocity.x - disk1->velocity.x) * (disk2->origin.x - disk1->origin.x) + (disk2->velocity.y - disk1->velocity.y) * (disk2->origin.y - disk1->origin.y)
+        disk1->velocity = velocity1prime;
+        disk2->velocity = velocity2prime;
+    }
+}
+
+std::vector<Disk>& Model::viewDisks(){
+    return disks;
+}
+
+std::vector<LineSegment>& Model::viewLineSegments(){
+    return lineSegments;
+}
