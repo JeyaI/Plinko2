@@ -15,12 +15,16 @@ View::View(Model* m){
 }
 
 void View::renderFrame(){
+    if(deltaTime <= 1.0/60.0){
+        model->setDeltaTime(deltaTime);
+    }else{
+        model->setDeltaTime(1.0/60.0);
+    }
+
     timeLast = timeNow;
     timeNow = SDL_GetPerformanceCounter();
 
     deltaTime = (double)(timeNow - timeLast)/((double)SDL_GetPerformanceFrequency());
-
-    model->setDeltaTime(deltaTime);
 
     //std::cout << 1.0/(deltaTime + 0.000001) << "\n";    
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF); 

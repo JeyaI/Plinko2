@@ -71,6 +71,9 @@ double distance(const Vec2D point, const LineSegment lineSegment){
     //Distance between this and point
     pointToLine = sqrt((point.x - x) * (point.x - x) + (point.y - y) * (point.y - y));
 
-    //return std::min(std::min(pointToLSA, pointToLSB), pointToLine);
-    return pointToLine;
+    if( (lineSegment.pointA.x <= x && x <= lineSegment.pointB.x) || (lineSegment.pointA.x >= x && x >= lineSegment.pointB.x) ){
+        return pointToLine;
+    }else{
+        return 9999;//std::min(pointToLSA, pointToLSB); TODO PATCH
+    }
 }

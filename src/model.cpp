@@ -3,7 +3,7 @@
 Model::Model(){
     go = false;
 
-    lineSegments.push_back({{-100.0, 600.0},{1640.0, 599}});
+    /*lineSegments.push_back({{100.0, 590.0},{1640.0, 589.0}});
 
     lineSegments.push_back({{0.0, 640*2.0},{1000.0, -300.0}});
 
@@ -33,7 +33,7 @@ Model::Model(){
     for(int l = 40; l < 640; l += 50){
         Disk x{{(double)l + 1.0, 40 + l/50 * 2.0}, 20, {0,0}, false};
         disks.push_back(x);
-    }
+    }*/
 
     /*Disk d1{{1.0, 620}, 20, {400, -100}, false};
     Disk d2{{600.0, 620}, 20, {-100, -170}, false};*/
@@ -50,6 +50,9 @@ Model::Model(){
         Disk d{{100 + i * 50.0, 620}, 20, {0.0,0.0}, false};
         disks.push_back(d);
     }*/
+
+    disks.push_back({{55, 620}, 20, {400.0, 0.0}, false});
+    lineSegments.push_back({{320, 640.0 - 25.0},{640, 640.0 - 24.0}});
 
 }
 
@@ -131,7 +134,7 @@ void Model::step(){
             //std::cout << "\t" << distancep << "\n";
             if(distance(iDisk.origin, lineSegments[l]) <= iDisk.radius) { //collision
                 double m = (lineSegments[l].pointA.y - lineSegments[l].pointB.y)/(lineSegments[l].pointA.x - lineSegments[l].pointB.x);
-                iDisk.velocity = reflectionDampened({1, -1.0 / m}, iDisk.velocity, 0.6);
+                iDisk.velocity = reflectionDampened({1, -1.0 / m}, iDisk.velocity, 1.0);
                 double overlap = iDisk.radius - distance(iDisk.origin, lineSegments[l]);
                 double xSideLength = 1;
                 double ySideLength = std::abs(-1.0/m);
@@ -142,7 +145,39 @@ void Model::step(){
                 iDisk.origin.y -= overlap * normalNormY;
                 /*std::cout << normalNormX * normalNormX + normalNormY * normalNormY << "\n";
                 std::cout << overlap * normalNormX << " " << overlap * normalNormY << "\n";*/
+                break;
             }
+
+            if(distance(iDisk.origin, lineSegments[l].pointA) <= iDisk.radius){ //collision
+                Vec2D normal;
+                normal.x = lineSegments[l].pointA.x - iDisk.origin.x;
+                normal.y = lineSegments[l].pointA.y - iDisk.origin.y;
+
+                Vec2D prescaleVelocity = reflectionDampened(normal, iDisk.velocity, 1.0);
+
+                iDisk.velocity = prescaleVelocity;
+                double overlap = iDisk.radius - distance(iDisk.origin, lineSegments[l].pointA); 
+
+                iDisk.origin.x -= overlap * (normal.x)/(distance(iDisk.origin, lineSegments[l].pointA));
+                iDisk.origin.y -= overlap * (normal.y)/(distance(iDisk.origin, lineSegments[l].pointA));
+                std::cout << "Collision\n";
+            }
+
+            if(distance(iDisk.origin, lineSegments[l].pointB) <= iDisk.radius){ //collision
+                Vec2D normal;
+                normal.x = lineSegments[l].pointB.x - iDisk.origin.x;
+                normal.y = lineSegments[l].pointB.y - iDisk.origin.y;
+
+                Vec2D prescaleVelocity = reflectionDampened(normal, iDisk.velocity, 1.0);
+
+                iDisk.velocity = prescaleVelocity;
+                double overlap = iDisk.radius - distance(iDisk.origin, lineSegments[l].pointB); 
+
+                iDisk.origin.x -= overlap * (normal.x)/(distance(iDisk.origin, lineSegments[l].pointB));
+                iDisk.origin.y -= overlap * (normal.y)/(distance(iDisk.origin, lineSegments[l].pointB));
+                std::cout << "Collision\n";
+            }
+
         }
 
         if(iDisk.origin.y + iDisk.radius >= 640){
