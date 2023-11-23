@@ -47,14 +47,17 @@ Vec2D reflectionDampened(const Vec2D axis, const Vec2D incident, const double da
     return reflected;
 }
 
-//TODO: distance point to point
+double distance(const Vec2D pointA, const Vec2D pointB){
+    return sqrt((pointA.x - pointB.x) * (pointA.x - pointB.x) + (pointA.y - pointB.y) * (pointA.y - pointB.y));
+}
+
 double distance(const Vec2D point, const LineSegment lineSegment){
     /*Return the smallest between 
     1: the smallest distance between the point and the two lineSegment endpoints 
     2: and the distance calculated along the normal to the line from the point*/
 
-    double pointToLSA = sqrt((point.x - lineSegment.pointA.x) * (point.x - lineSegment.pointA.x) + (point.y - lineSegment.pointA.y) * (point.x - lineSegment.pointA.y));
-    double pointToLSB = sqrt((point.x - lineSegment.pointB.x) * (point.x - lineSegment.pointB.x) + (point.y - lineSegment.pointB.y) * (point.x - lineSegment.pointB.y));
+    double pointToLSA = distance(point, lineSegment.pointA);
+    double pointToLSB = distance(point, lineSegment.pointB);
 
     double pointToLine;
     /*Using Point-Point form of a line: y - y1 = (y2 - y1)/(x2 - x1) * (x - x1)*/

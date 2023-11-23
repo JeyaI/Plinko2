@@ -36,4 +36,6 @@ Vec2D reflection(const Vec2D axis, const Vec2D incident);
 
 Vec2D reflectionDampened(const Vec2D axis, const Vec2D incident, const double percentDampening);
 
-double distance(Vec2D point, LineSegment lineSegment);
+double distance(const Vec2D pointA, const Vec2D pointB);
+
+double distance(const Vec2D point, const LineSegment lineSegment);

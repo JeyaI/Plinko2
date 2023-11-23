@@ -21,7 +21,7 @@ static void loop(void)   /* this will run often, possibly at the monitor's refre
     globalApp->step();
 }
 
-//emcc src/main.cpp src/myApp.cpp -Isrc/include/ROTLIB -sUSE_SDL=2
+//emcc src/controller.cpp src/main.cpp src/model.cpp src/physics.cpp src/view.cpp -Isrc/include -sUSE_SDL=2 -o plinko.html
 //g++ -static-libgcc -static-libstdc++ -Isrc/include/SDL2 -Isrc/include -Lsrc/lib -o main src/*.cpp -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net -lSDL2_ttf -O3
 int main(int argc, char** argv)
 {

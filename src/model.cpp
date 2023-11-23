@@ -3,7 +3,9 @@
 Model::Model(){
     go = false;
 
-    lineSegments.push_back({{-100.0, 601.0},{1640.0, 440.0}});
+    lineSegments.push_back({{-100.0, 600.0},{1640.0, 599}});
+
+    lineSegments.push_back({{0.0, 640*2.0},{1000.0, -300.0}});
 
     Disk d{{321,40}, 20, {0,0}, false};
 
@@ -51,6 +53,10 @@ Model::Model(){
 
 }
 
+void Model::setDeltaTime(double deltaTime){
+    this->deltaTime = deltaTime;
+}
+
 void Model::step(){
     if(!go){
         return;
@@ -62,9 +68,9 @@ void Model::step(){
         Disk& iDisk = disks[i];
 
         if(!iDisk.isStatic){
-            iDisk.velocity.y += 100 * 0.001; //TODO replace with deltatime
-            iDisk.origin.y += iDisk.velocity.y * 0.001;
-            iDisk.origin.x += iDisk.velocity.x * 0.001;
+            iDisk.velocity.y += 1000 * deltaTime; //TODO replace with deltatime
+            iDisk.origin.y += iDisk.velocity.y * deltaTime;
+            iDisk.origin.x += iDisk.velocity.x * deltaTime;
         }
 
         for(unsigned int j = 0; j < disks.size(); j++){
@@ -127,11 +133,15 @@ void Model::step(){
                 double m = (lineSegments[l].pointA.y - lineSegments[l].pointB.y)/(lineSegments[l].pointA.x - lineSegments[l].pointB.x);
                 iDisk.velocity = reflectionDampened({1, -1.0 / m}, iDisk.velocity, 0.6);
                 double overlap = iDisk.radius - distance(iDisk.origin, lineSegments[l]);
-                double magnitude = sqrt((1 * -1.0 / m) * (1 * -1.0 / m));
+                double xSideLength = 1;
+                double ySideLength = std::abs(-1.0/m);
+                double magnitude = sqrt(xSideLength * xSideLength + ySideLength * ySideLength);
                 double normalNormX = 1.0 / magnitude;
                 double normalNormY = (-1.0/m) / magnitude;
                 iDisk.origin.x -= overlap * normalNormX;
                 iDisk.origin.y -= overlap * normalNormY;
+                /*std::cout << normalNormX * normalNormX + normalNormY * normalNormY << "\n";
+                std::cout << overlap * normalNormX << " " << overlap * normalNormY << "\n";*/
             }
         }
 

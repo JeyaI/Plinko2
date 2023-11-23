@@ -20,7 +20,9 @@ void View::renderFrame(){
 
     deltaTime = (double)(timeNow - timeLast)/((double)SDL_GetPerformanceFrequency());
 
-    std::cout << 1.0/(deltaTime + 0.000001) << "\n";    
+    model->setDeltaTime(deltaTime);
+
+    //std::cout << 1.0/(deltaTime + 0.000001) << "\n";    
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF); 
     SDL_RenderClear(renderer);
 
