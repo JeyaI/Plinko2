@@ -77,3 +77,74 @@ double distance(const Vec2D point, const LineSegment lineSegment){
         return 9999;//std::min(pointToLSA, pointToLSB); TODO PATCH
     }
 }
+
+Vec2D closestPointOnLine(const LineSegment lineSegment, const Vec2D point){ //todo should really be line parameter
+    if(lineSegment.pointA.y - lineSegment.pointB.y == 0){ //horizontal
+        return {point.x, lineSegment.pointA.y};
+    }
+    
+    if(lineSegment.pointA.x - lineSegment.pointB.x == 0){ //vertical
+        return {lineSegment.pointA.x, point.y};
+    }
+    
+    double m = (lineSegment.pointA.y - lineSegment.pointB.y)/(lineSegment.pointA.x - lineSegment.pointB.x);
+
+    double x = (point.y - lineSegment.pointA.y + m * lineSegment.pointA.x + (1.0/m) * point.x)/(m + 1.0/m);
+
+    double y = lineSegment.pointA.y + m * (x - lineSegment.pointA.x);
+
+    Vec2D closestPoint{x, y};
+
+    return closestPoint;
+}
+
+void collisionStaticLineSegmentDynamicDisk(const LineSegment& lineSegment, Disk& disk){
+
+    Vec2D closestPoint = closestPointOnLine(lineSegment, disk.origin);
+
+    if( distance(closestPoint, disk.origin) <= disk.radius ){
+        if( (lineSegment.pointA.x <= closestPoint.x && closestPoint.x <= lineSegment.pointB.x) || (lineSegment.pointA.x >= closestPoint.x && closestPoint.x >= lineSegment.pointB.x) ){
+            //This implies that the disk has collided in the middle of the line segment
+            Vec2D normal{closestPoint.x - disk.origin.x, closestPoint.y - disk.origin.y};
+            double magnitude = normal.x * normal.x + normal.y * normal.y;
+            normal.x /= magnitude;
+            normal.y /= magnitude;
+
+            double overlap = disk.radius - distance(closestPoint, disk.origin);
+
+            disk.origin.x -= overlap * normal.x;
+            disk.origin.y -= overlap * normal.y;
+            
+            disk.velocity = reflectionDampened(normal, disk.velocity, 1.0);
+
+            return;
+        }
+    }
+
+    if( distance(disk.origin, lineSegment.pointA) <= disk.radius ){
+        //Disk-disk
+        Vec2D normal{lineSegment.pointA.x - disk.origin.x, lineSegment.pointA.y - disk.origin.y};
+
+        disk.velocity = reflectionDampened(normal, disk.velocity, 1.0);
+        double overlap = disk.radius - distance(disk.origin, lineSegment.pointA); 
+
+        disk.origin.x -= overlap * (normal.x)/(distance(disk.origin, lineSegment.pointA));
+        disk.origin.y -= overlap * (normal.y)/(distance(disk.origin, lineSegment.pointA));
+
+        return;
+    }
+
+    if( distance(disk.origin, lineSegment.pointB) <= disk.radius ){
+        //Disk-disk
+        Vec2D normal{lineSegment.pointB.x - disk.origin.x, lineSegment.pointB.y - disk.origin.y};
+
+        disk.velocity = reflectionDampened(normal, disk.velocity, 1.0);
+        double overlap = disk.radius - distance(disk.origin, lineSegment.pointB); 
+
+        disk.origin.x -= overlap * (normal.x)/(distance(disk.origin, lineSegment.pointB));
+        disk.origin.y -= overlap * (normal.y)/(distance(disk.origin, lineSegment.pointB));
+
+        return;
+    }
+
+}

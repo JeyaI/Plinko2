@@ -39,3 +39,7 @@ Vec2D reflectionDampened(const Vec2D axis, const Vec2D incident, const double pe
 double distance(const Vec2D pointA, const Vec2D pointB);
 
 double distance(const Vec2D point, const LineSegment lineSegment);
+
+Vec2D closestPointToLine(const LineSegment lineSegment, const Vec2D point);
+
+void collisionStaticLineSegmentDynamicDisk(const LineSegment& lineSegment, Disk& disk);
