@@ -47,3 +47,5 @@ void collisionStaticLineSegmentDynamicDisk(const LineSegment& lineSegment, Disk&
 void collisionStaticDiskDynamicDisk(const Disk& staticDisk, Disk& dynamicDisk, double dampening);
 
 void collisionStaticDiskDynamicDisk(const Vec2D staticDiskOrigin, const double staticDiskRadius, Disk& dynamicDisk, double dampening);
+
+void collisionDynamicDiskDynamicDisk(Disk& disk1, Disk& disk2);

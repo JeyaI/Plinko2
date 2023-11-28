@@ -153,22 +153,7 @@ void Model::step(){
 
     for(auto& collision : dynamicCollisions){
         //TODO derive this and use masses
-        Disk* disk1 = collision.first;
-        Disk* disk2 = collision.second;
-
-        double distanceSquared = (disk1->origin.x - disk2->origin.x) * (disk1->origin.x - disk2->origin.x) + (disk1->origin.y - disk2->origin.y) * (disk1->origin.y - disk2->origin.y);
-
-        Vec2D velocity1prime;
-        Vec2D velocity2prime;
-        //TODO make this more realistic
-        velocity1prime.x = disk1->velocity.x - /*7.0/8.0 **/ ((disk1->velocity.x - disk2->velocity.x) * (disk1->origin.x - disk2->origin.x) + (disk1->velocity.y - disk2->velocity.y) * (disk1->origin.y - disk2->origin.y)) * (disk1->origin.x - disk2->origin.x) / distanceSquared;
-        velocity1prime.y = disk1->velocity.y - /*7.0/8.0 **/ ((disk1->velocity.x - disk2->velocity.x) * (disk1->origin.x - disk2->origin.x) + (disk1->velocity.y - disk2->velocity.y) * (disk1->origin.y - disk2->origin.y)) * (disk1->origin.y - disk2->origin.y) / distanceSquared;
-
-        velocity2prime.x = disk2->velocity.x - /*7.0/8.0 **/ ((disk2->velocity.x - disk1->velocity.x) * (disk2->origin.x - disk1->origin.x) + (disk2->velocity.y - disk1->velocity.y) * (disk2->origin.y - disk1->origin.y)) * (disk2->origin.x - disk1->origin.x) / distanceSquared;
-        velocity2prime.y = disk2->velocity.y - /*7.0/8.0 **/ ((disk2->velocity.x - disk1->velocity.x) * (disk2->origin.x - disk1->origin.x) + (disk2->velocity.y - disk1->velocity.y) * (disk2->origin.y - disk1->origin.y)) * (disk2->origin.y - disk1->origin.y) / distanceSquared;
-        //(disk2->velocity.x - disk1->velocity.x) * (disk2->origin.x - disk1->origin.x) + (disk2->velocity.y - disk1->velocity.y) * (disk2->origin.y - disk1->origin.y)
-        disk1->velocity = velocity1prime;
-        disk2->velocity = velocity2prime;
+        collisionDynamicDiskDynamicDisk(*(collision.first), *(collision.second));
     }
 }
 

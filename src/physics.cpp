@@ -158,3 +158,19 @@ void collisionStaticDiskDynamicDisk(const Vec2D staticDiskOrigin, const double s
     dynamicDisk.origin.x -= overlap * (normal.x)/(distance(staticDiskOrigin, dynamicDisk.origin));
     dynamicDisk.origin.y -= overlap * (normal.y)/(distance(staticDiskOrigin, dynamicDisk.origin));
 }
+
+void collisionDynamicDiskDynamicDisk(Disk& disk1, Disk& disk2){
+    double distanceSquared = (disk1.origin.x - disk2.origin.x) * (disk1.origin.x - disk2.origin.x) + (disk1.origin.y - disk2.origin.y) * (disk1.origin.y - disk2.origin.y); //TODO:turn into function
+
+    Vec2D velocity1prime;
+    Vec2D velocity2prime;
+    //TODO make this more realistic
+    velocity1prime.x = disk1.velocity.x - /*7.0/8.0 **/ ((disk1.velocity.x - disk2.velocity.x) * (disk1.origin.x - disk2.origin.x) + (disk1.velocity.y - disk2.velocity.y) * (disk1.origin.y - disk2.origin.y)) * (disk1.origin.x - disk2.origin.x) / distanceSquared;
+    velocity1prime.y = disk1.velocity.y - /*7.0/8.0 **/ ((disk1.velocity.x - disk2.velocity.x) * (disk1.origin.x - disk2.origin.x) + (disk1.velocity.y - disk2.velocity.y) * (disk1.origin.y - disk2.origin.y)) * (disk1.origin.y - disk2.origin.y) / distanceSquared;
+
+    velocity2prime.x = disk2.velocity.x - /*7.0/8.0 **/ ((disk2.velocity.x - disk1.velocity.x) * (disk2.origin.x - disk1.origin.x) + (disk2.velocity.y - disk1.velocity.y) * (disk2.origin.y - disk1.origin.y)) * (disk2.origin.x - disk1.origin.x) / distanceSquared;
+    velocity2prime.y = disk2.velocity.y - /*7.0/8.0 **/ ((disk2.velocity.x - disk1.velocity.x) * (disk2.origin.x - disk1.origin.x) + (disk2.velocity.y - disk1.velocity.y) * (disk2.origin.y - disk1.origin.y)) * (disk2.origin.y - disk1.origin.y) / distanceSquared;
+    //(disk2.velocity.x - disk1.velocity.x) * (disk2.origin.x - disk1.origin.x) + (disk2.velocity.y - disk1.velocity.y) * (disk2.origin.y - disk1.origin.y)
+    disk1.velocity = velocity1prime;
+    disk2.velocity = velocity2prime;
+}
