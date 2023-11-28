@@ -51,6 +51,10 @@ double distance(const Vec2D pointA, const Vec2D pointB){
     return sqrt((pointA.x - pointB.x) * (pointA.x - pointB.x) + (pointA.y - pointB.y) * (pointA.y - pointB.y));
 }
 
+double distanceSquared(const Vec2D pointA, const Vec2D pointB){
+    return (pointA.x - pointB.x) * (pointA.x - pointB.x) + (pointA.y - pointB.y) * (pointA.y - pointB.y);
+}
+
 double distance(const Vec2D point, const LineSegment lineSegment){
     /*Return the smallest between 
     1: the smallest distance between the point and the two lineSegment endpoints 
@@ -106,7 +110,7 @@ void collisionStaticLineSegmentDynamicDisk(const LineSegment& lineSegment, Disk&
         if( (lineSegment.pointA.x <= closestPoint.x && closestPoint.x <= lineSegment.pointB.x) || (lineSegment.pointA.x >= closestPoint.x && closestPoint.x >= lineSegment.pointB.x) ){
             //This implies that the disk has collided in the middle of the line segment
             Vec2D normal{closestPoint.x - disk.origin.x, closestPoint.y - disk.origin.y};
-            double magnitude = normal.x * normal.x + normal.y * normal.y;
+            double magnitude = sqrt(normal.x * normal.x + normal.y * normal.y);
             normal.x /= magnitude;
             normal.y /= magnitude;
 
@@ -173,4 +177,9 @@ void collisionDynamicDiskDynamicDisk(Disk& disk1, Disk& disk2){
     //(disk2.velocity.x - disk1.velocity.x) * (disk2.origin.x - disk1.origin.x) + (disk2.velocity.y - disk1.velocity.y) * (disk2.origin.y - disk1.origin.y)
     disk1.velocity = velocity1prime;
     disk2.velocity = velocity2prime;
+}
+
+bool isCollidingDiskDisk(const Disk& disk1, const Disk& disk2){
+    double dd = distanceSquared(disk1.origin, disk2.origin);
+    return (dd <= (disk1.radius + disk2.radius) * (disk1.radius + disk2.radius) );
 }

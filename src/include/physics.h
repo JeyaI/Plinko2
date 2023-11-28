@@ -40,6 +40,8 @@ double distance(const Vec2D pointA, const Vec2D pointB);
 
 double distance(const Vec2D point, const LineSegment lineSegment);
 
+double distanceSquared(const Vec2D pointA, const Vec2D pointB);
+
 Vec2D closestPointToLine(const LineSegment lineSegment, const Vec2D point);
 
 void collisionStaticLineSegmentDynamicDisk(const LineSegment& lineSegment, Disk& disk, double dampening);
@@ -49,3 +51,5 @@ void collisionStaticDiskDynamicDisk(const Disk& staticDisk, Disk& dynamicDisk, d
 void collisionStaticDiskDynamicDisk(const Vec2D staticDiskOrigin, const double staticDiskRadius, Disk& dynamicDisk, double dampening);
 
 void collisionDynamicDiskDynamicDisk(Disk& disk1, Disk& disk2);
+
+bool isCollidingDiskDisk(const Disk& disk1, const Disk& disk2);

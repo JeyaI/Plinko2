@@ -7,6 +7,11 @@ Model::Model(){
 
     lineSegments.push_back({{0.0, 640*2.0},{1000.0, -300.0}});
 
+    lineSegments.push_back({{0.0, 0.0}, {640.0, 0.0}});
+    lineSegments.push_back({{640.0, 0.0}, {640.0, 640.0}});
+    lineSegments.push_back({{640.0, 640.0}, {0.0, 640.0}});
+    lineSegments.push_back({{0.0, 640.0}, {0.0, 0.0}});
+
     Disk d{{321,40}, 20, {0,0}, false};
 
     disks.push_back(d);
@@ -89,7 +94,7 @@ void Model::step(){
             //std::cout << "Combined Radius Squared: " << (jDisk.radius + iDisk.radius) * (jDisk.radius + iDisk.radius) << "\n"; 
             double distanceSquared = (iDisk.origin.x - jDisk.origin.x) * (iDisk.origin.x - jDisk.origin.x) + (iDisk.origin.y - jDisk.origin.y) * (iDisk.origin.y - jDisk.origin.y);
 
-            if((jDisk.radius + iDisk.radius) * (jDisk.radius + iDisk.radius) > distanceSquared){
+            if(isCollidingDiskDisk(iDisk, jDisk)){
                 Vec2D normal;
                 normal.x = jDisk.origin.x - iDisk.origin.x;
                 normal.y = jDisk.origin.y - iDisk.origin.y;
@@ -125,29 +130,20 @@ void Model::step(){
             collisionStaticLineSegmentDynamicDisk(lineSegments[l], iDisk, 0.6);
         }
 
-        if(iDisk.origin.y + iDisk.radius >= 640){
+        /*if(iDisk.origin.y + iDisk.radius >= 640){
             iDisk.velocity = reflectionDampened({0, -1.0}, iDisk.velocity, 0.6);
-            /*iDisk.velocity.x *= 7.0/8.0;
-            iDisk.velocity.y *= 7.0/8.0;*/
-
             iDisk.origin.y = 640 - iDisk.radius;
         }
 
         if(iDisk.origin.x + iDisk.radius >= 640){
             iDisk.velocity = reflectionDampened({-1.0, 0}, iDisk.velocity, 0.6);
-            /*iDisk.velocity.x *= 5.0/8.0;
-            iDisk.velocity.y *= 5.0/8.0;*/
-
             iDisk.origin.x = 640 - iDisk.radius;
         }
 
         if(iDisk.origin.x - iDisk.radius <= 0){
             iDisk.velocity = reflectionDampened({1.0, 0}, iDisk.velocity, 0.6);
-            /*iDisk.velocity.x *= 5.0/8.0;
-            iDisk.velocity.x *= 5.0/8.0;*/
-
             iDisk.origin.x = iDisk.radius;
-        }
+        }*/
 
     }
 
