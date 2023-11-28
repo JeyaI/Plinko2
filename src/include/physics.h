@@ -42,4 +42,8 @@ double distance(const Vec2D point, const LineSegment lineSegment);
 
 Vec2D closestPointToLine(const LineSegment lineSegment, const Vec2D point);
 
-void collisionStaticLineSegmentDynamicDisk(const LineSegment& lineSegment, Disk& disk);
+void collisionStaticLineSegmentDynamicDisk(const LineSegment& lineSegment, Disk& disk, double dampening);
+
+void collisionStaticDiskDynamicDisk(const Disk& staticDisk, Disk& dynamicDisk, double dampening);
+
+void collisionStaticDiskDynamicDisk(const Vec2D staticDiskOrigin, const double staticDiskRadius, Disk& dynamicDisk, double dampening);

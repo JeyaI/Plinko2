@@ -98,7 +98,7 @@ Vec2D closestPointOnLine(const LineSegment lineSegment, const Vec2D point){ //to
     return closestPoint;
 }
 
-void collisionStaticLineSegmentDynamicDisk(const LineSegment& lineSegment, Disk& disk){
+void collisionStaticLineSegmentDynamicDisk(const LineSegment& lineSegment, Disk& disk, double dampening = 1.0){
 
     Vec2D closestPoint = closestPointOnLine(lineSegment, disk.origin);
 
@@ -115,7 +115,7 @@ void collisionStaticLineSegmentDynamicDisk(const LineSegment& lineSegment, Disk&
             disk.origin.x -= overlap * normal.x;
             disk.origin.y -= overlap * normal.y;
             
-            disk.velocity = reflectionDampened(normal, disk.velocity, 1.0);
+            disk.velocity = reflectionDampened(normal, disk.velocity, dampening);
 
             return;
         }
@@ -123,28 +123,38 @@ void collisionStaticLineSegmentDynamicDisk(const LineSegment& lineSegment, Disk&
 
     if( distance(disk.origin, lineSegment.pointA) <= disk.radius ){
         //Disk-disk
-        Vec2D normal{lineSegment.pointA.x - disk.origin.x, lineSegment.pointA.y - disk.origin.y};
-
-        disk.velocity = reflectionDampened(normal, disk.velocity, 1.0);
-        double overlap = disk.radius - distance(disk.origin, lineSegment.pointA); 
-
-        disk.origin.x -= overlap * (normal.x)/(distance(disk.origin, lineSegment.pointA));
-        disk.origin.y -= overlap * (normal.y)/(distance(disk.origin, lineSegment.pointA));
-
+        collisionStaticDiskDynamicDisk(lineSegment.pointA, 0, disk, dampening);
         return;
     }
 
     if( distance(disk.origin, lineSegment.pointB) <= disk.radius ){
         //Disk-disk
-        Vec2D normal{lineSegment.pointB.x - disk.origin.x, lineSegment.pointB.y - disk.origin.y};
-
-        disk.velocity = reflectionDampened(normal, disk.velocity, 1.0);
-        double overlap = disk.radius - distance(disk.origin, lineSegment.pointB); 
-
-        disk.origin.x -= overlap * (normal.x)/(distance(disk.origin, lineSegment.pointB));
-        disk.origin.y -= overlap * (normal.y)/(distance(disk.origin, lineSegment.pointB));
-
+        collisionStaticDiskDynamicDisk(lineSegment.pointB, 0, disk, dampening);
         return;
     }
 
+}
+
+void collisionStaticDiskDynamicDisk(const Disk& staticDisk, Disk& dynamicDisk, double dampening){
+    Vec2D normal;
+    normal.x = staticDisk.origin.x - dynamicDisk.origin.x;
+    normal.y = staticDisk.origin.y - dynamicDisk.origin.y;
+
+    dynamicDisk.velocity = reflectionDampened(normal, dynamicDisk.velocity, dampening);
+    double overlap = staticDisk.radius + dynamicDisk.radius - distance(staticDisk.origin, dynamicDisk.origin); 
+
+    dynamicDisk.origin.x -= overlap * (normal.x)/(distance(staticDisk.origin, dynamicDisk.origin));
+    dynamicDisk.origin.y -= overlap * (normal.y)/(distance(staticDisk.origin, dynamicDisk.origin));
+}
+
+void collisionStaticDiskDynamicDisk(const Vec2D staticDiskOrigin, const double staticDiskRadius, Disk& dynamicDisk, double dampening){
+    Vec2D normal;
+    normal.x = staticDiskOrigin.x - dynamicDisk.origin.x;
+    normal.y = staticDiskOrigin.y - dynamicDisk.origin.y;
+
+    dynamicDisk.velocity = reflectionDampened(normal, dynamicDisk.velocity, dampening);
+    double overlap = staticDiskRadius + dynamicDisk.radius - distance(staticDiskOrigin, dynamicDisk.origin); 
+
+    dynamicDisk.origin.x -= overlap * (normal.x)/(distance(staticDiskOrigin, dynamicDisk.origin));
+    dynamicDisk.origin.y -= overlap * (normal.y)/(distance(staticDiskOrigin, dynamicDisk.origin));
 }

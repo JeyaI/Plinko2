@@ -95,15 +95,7 @@ void Model::step(){
                 normal.y = jDisk.origin.y - iDisk.origin.y;
                 
                 if(jDisk.isStatic){
-                    //iDisk.velocity = reflection(normal, iDisk.velocity);
-                    Vec2D prescaleVelocity = reflectionDampened(normal, iDisk.velocity, 0.6);
-                    /*iDisk.velocity.x = prescaleVelocity.x * 0.6;
-                    iDisk.velocity.y = prescaleVelocity.y * 0.6;*/
-                    iDisk.velocity = prescaleVelocity;
-                    double overlap = jDisk.radius + iDisk.radius - sqrt(distanceSquared); 
-
-                    iDisk.origin.x -= overlap * (normal.x)/(sqrt(distanceSquared));
-                    iDisk.origin.y -= overlap * (normal.y)/(sqrt(distanceSquared));
+                    collisionStaticDiskDynamicDisk(jDisk, iDisk, 0.6);
                 }else{
                     double overlap = 0.5 * (jDisk.radius + iDisk.radius - sqrt(distanceSquared)); 
 
@@ -130,7 +122,7 @@ void Model::step(){
         }
 
         for(unsigned int l = 0; l < lineSegments.size(); l++){
-            collisionStaticLineSegmentDynamicDisk(lineSegments[l], iDisk);
+            collisionStaticLineSegmentDynamicDisk(lineSegments[l], iDisk, 0.6);
         }
 
         if(iDisk.origin.y + iDisk.radius >= 640){
