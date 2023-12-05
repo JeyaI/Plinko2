@@ -107,7 +107,11 @@ void collisionStaticLineSegmentDynamicDisk(const LineSegment& lineSegment, Disk&
     Vec2D closestPoint = closestPointOnLine(lineSegment, disk.origin);
 
     if( distance(closestPoint, disk.origin) <= disk.radius ){
-        if( (lineSegment.pointA.x <= closestPoint.x && closestPoint.x <= lineSegment.pointB.x) || (lineSegment.pointA.x >= closestPoint.x && closestPoint.x >= lineSegment.pointB.x) ){
+        if( 
+            ((lineSegment.pointA.x <= closestPoint.x && closestPoint.x <= lineSegment.pointB.x) || (lineSegment.pointA.x >= closestPoint.x && closestPoint.x >= lineSegment.pointB.x))
+            &&
+            ((lineSegment.pointA.y <= closestPoint.y && closestPoint.y <= lineSegment.pointB.y) || (lineSegment.pointA.y >= closestPoint.y && closestPoint.y >= lineSegment.pointB.y))
+        ){
             //This implies that the disk has collided in the middle of the line segment
             Vec2D normal{closestPoint.x - disk.origin.x, closestPoint.y - disk.origin.y};
             double magnitude = sqrt(normal.x * normal.x + normal.y * normal.y);

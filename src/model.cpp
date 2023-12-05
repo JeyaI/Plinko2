@@ -3,42 +3,63 @@
 Model::Model(){
     go = false;
 
-    lineSegments.push_back({{100.0, 590.0},{1640.0, 589.0}});
+    /*lineSegments.push_back({{100.0, 590.0},{1640.0, 589.0}});
 
-    lineSegments.push_back({{0.0, 640*2.0},{1000.0, -300.0}});
+    lineSegments.push_back({{0.0, 640*2.0},{1000.0, -300.0}});*/
+
+
 
     lineSegments.push_back({{0.0, 0.0}, {640.0, 0.0}});
     lineSegments.push_back({{640.0, 0.0}, {640.0, 640.0}});
     lineSegments.push_back({{640.0, 640.0}, {0.0, 640.0}});
     lineSegments.push_back({{0.0, 640.0}, {0.0, 0.0}});
 
-    Disk d{{321,40}, 20, {0,0}, false};
+    lineSegments.push_back({{40, 0.0}, {40, 640.0}});
+    lineSegments.push_back({{600, 0.0}, {600, 640.0}});
+
+    /*Disk d{{321,40}, 20, {0,0}, false};
 
     disks.push_back(d);
 
     Disk d2{{160,25}, 15, {0,0}, false};
 
-    disks.push_back(d2);
+    disks.push_back(d2);*/
 
-    for(int i = 0; i < 7; i++){
-        bool doOffset = !(i % 2);
+    for(int i = 0; i < 9; i++){
+        bool doOffset = !((i + 1) % 2);
         
-        int startX = 100;
+        int startX = 110;
         if(doOffset){
-            startX = 135;
+            startX = 145;
         }
 
         for(int j = 0; j < 6 || j < 7 && !doOffset; j++){
-            Disk s{{startX + j * 70.0, 100 + i * 80.0}, 4, {0,0}, true};
+            Disk s{{startX + j * 70.0, 100 + i * 55.0}, 4, {0,0}, true};
             disks.push_back(s);
         }
         
     }
 
-    for(int l = 40; l < 640; l += 50){
+    for(int j = 0; j < 7; j++){
+        LineSegment lS{{110.0 + j * 70.0, 600.0}, {110.0 + j * 70.0, 640.0}};
+        lineSegments.push_back(lS);
+    }
+
+    for(int i = 0; i < 4; i++){
+        LineSegment LSL1{{40.0, 100 + 55.0 * 2 * i},{110.0 - 35.0, 100.0 + 55.0 * (2 * i + 1)}};
+        LineSegment LSL2{{110.0 - 35.0, 100.0 + 55.0 * (2 * i + 1)},{40.0, 100 + 55.0 * (2 * i + 2)}};
+        LineSegment LSR1{{640.0 - 40.0, 100 + 55.0 * 2 * i},{640.0 - (110.0 - 35.0), 100.0 + 55.0 * (2 * i + 1)}};
+        LineSegment LSR2{{640.0 - (110.0 - 35.0), 100.0 + 55.0 * (2 * i + 1)},{640.0 - (40.0), 100 + 55.0 * (2 * i + 2)}};
+        lineSegments.push_back(LSL1);
+        lineSegments.push_back(LSL2);
+        lineSegments.push_back(LSR1);
+        lineSegments.push_back(LSR2);
+    }
+
+    /*for(int l = 40; l < 640; l += 50){
         Disk x{{(double)l + 1.0, 40 + l/50 * 2.0}, 20, {0,0}, false};
         disks.push_back(x);
-    }
+    }*/
 
     /*Disk d1{{1.0, 620}, 20, {400, -100}, false};
     Disk d2{{600.0, 620}, 20, {-100, -170}, false};*/
@@ -127,6 +148,9 @@ void Model::step(){
         }
 
         for(unsigned int l = 0; l < lineSegments.size(); l++){
+            if(iDisk.isStatic){
+                break;
+            }
             collisionStaticLineSegmentDynamicDisk(lineSegments[l], iDisk, 0.6);
         }
 
