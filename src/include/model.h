@@ -7,6 +7,8 @@ private:
     std::vector<Disk> disks;
     std::vector<LineSegment> lineSegments;
     double deltaTime;
+    Disk diskPreview;
+    
 public:
     Model();
     void step();
@@ -14,4 +16,5 @@ public:
     std::vector<LineSegment>& viewLineSegments();
     bool go;
     void setDeltaTime(double deltaTime);
+    Disk& viewDiskPreview();
 };

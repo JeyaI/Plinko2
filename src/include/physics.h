@@ -19,6 +19,7 @@ public:
     double radius;
     Vec2D velocity;
     bool isStatic;
+    bool remove;
 };
 
 class LineSegment {

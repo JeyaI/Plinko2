@@ -5,6 +5,15 @@ void Controller::handleEvents(SDL_Event& e){
         const uint8_t* keys = SDL_GetKeyboardState(nullptr);
         int mouseX;
         int mouseY;
+        SDL_GetMouseState(&mouseX, &mouseY);
+        if(mouseX >= 580){
+            mouseX = 580;
+        }
+        if(mouseX <= 60){
+            mouseX = 60;
+        }
+        model->viewDiskPreview().origin.x = (double)mouseX;
+        model->viewDiskPreview().origin.y = 40.0;
         switch(e.syswm.type){
             case SDL_QUIT:
                 exitFlag = true;
@@ -13,8 +22,7 @@ void Controller::handleEvents(SDL_Event& e){
                 model->go = true;
                 break;
             case SDL_MOUSEBUTTONUP:
-                SDL_GetMouseState(&mouseX, &mouseY);
-                model->viewDisks().push_back({{(double)mouseX, (double)mouseY}, 20, {0.0, 0.0}, false});
+                model->viewDisks().push_back({{(double)mouseX, 40}, 20, {0.0, 0.0}, false, false});
         }
     }
 }

@@ -37,6 +37,9 @@ void View::renderFrame(){
         //SDL_RenderDrawLine(renderer, (int)disks[i].origin.x, (int)disks[i].origin.y, (int)disks[i].origin.x + (int)(disks[i].velocity.x), (int)disks[i].origin.y + (int)(disks[i].velocity.y));
     }
 
+    Disk& diskPreview = model->viewDiskPreview();
+    DrawCircle(renderer, {(int)diskPreview.origin.x, (int)diskPreview.origin.y}, diskPreview.radius);
+
     SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
     std::vector<LineSegment>& lineSegments = model->viewLineSegments();
     for(unsigned int i = 0; i < lineSegments.size(); i++){

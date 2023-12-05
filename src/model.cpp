@@ -1,17 +1,18 @@
 #include "model.h"
 
 Model::Model(){
-    go = false;
+    go = true;
 
     /*lineSegments.push_back({{100.0, 590.0},{1640.0, 589.0}});
 
     lineSegments.push_back({{0.0, 640*2.0},{1000.0, -300.0}});*/
 
-
+    diskPreview.radius = 20.0;
+    diskPreview.velocity = {0.0, 0.0};
 
     lineSegments.push_back({{0.0, 0.0}, {640.0, 0.0}});
     lineSegments.push_back({{640.0, 0.0}, {640.0, 640.0}});
-    lineSegments.push_back({{640.0, 640.0}, {0.0, 640.0}});
+    //lineSegments.push_back({{640.0, 640.0}, {0.0, 640.0}});
     lineSegments.push_back({{0.0, 640.0}, {0.0, 0.0}});
 
     lineSegments.push_back({{40, 0.0}, {40, 640.0}});
@@ -169,12 +170,25 @@ void Model::step(){
             iDisk.origin.x = iDisk.radius;
         }*/
 
+        if(iDisk.origin.y >= 640 + iDisk.radius){
+            iDisk.remove = true;
+        }
+
     }
 
     for(auto& collision : dynamicCollisions){
         //TODO derive this and use masses
         collisionDynamicDiskDynamicDisk(*(collision.first), *(collision.second));
     }
+
+    for(int i = 0; i < disks.size(); i++){
+        if(disks[i].remove){
+            disks.erase(disks.begin() + i);
+            i--;
+        }
+    }
+
+
 }
 
 std::vector<Disk>& Model::viewDisks(){
@@ -183,4 +197,8 @@ std::vector<Disk>& Model::viewDisks(){
 
 std::vector<LineSegment>& Model::viewLineSegments(){
     return lineSegments;
+}
+
+Disk& Model::viewDiskPreview(){
+    return diskPreview;
 }
