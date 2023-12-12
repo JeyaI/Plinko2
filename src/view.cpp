@@ -4,7 +4,7 @@
 View::View(Model* m){
     model = m;
 
-    SDL_Init(SDL_INIT_VIDEO);
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 
     TTF_Init();
 
@@ -12,6 +12,12 @@ View::View(Model* m){
 
     window = SDL_CreateWindow("Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 640, SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+    Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 );
+
+    ballCollideSFX = Mix_LoadWAV("ballCollision3.wav");
+
+    collisionSFXCooldown = 100;
 
     deltaTime = 0.0;
     timeNow = 0;
@@ -64,7 +70,7 @@ void View::renderFrame(){
         Disk& diskPreview = model->viewDiskPreview();
         DrawCircle(renderer, {(int)diskPreview.origin.x, (int)diskPreview.origin.y}, diskPreview.radius);
 
-        for(int i = 0; i < model->viewDisksToPlace(); i++){
+        for(int i = 0; i < model->viewDisksToPlace() - 1; i++){
             DrawCircle(renderer, {620, 30 + i * 40}, 10);
         }
 
@@ -82,6 +88,18 @@ void View::renderFrame(){
     }
 
     SDL_RenderPresent(renderer);
+
+    //sounds
+    if(model->playClick() && collisionSFXCooldown == 0){
+        if (Mix_PlayChannel( -1, ballCollideSFX, 0 ) == -1) {
+            printf("Failed to play effect: %s\n", Mix_GetError());
+        }
+        collisionSFXCooldown = 100;
+    }
+
+    if(collisionSFXCooldown > 0){
+        collisionSFXCooldown--;
+    }
 }
 
 View::~View(){

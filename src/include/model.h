@@ -10,6 +10,7 @@ private:
     Disk diskPreview;
     int score;
     int disksToPlace;
+    bool collisionOccured;
     
 public:
     Model();
@@ -23,4 +24,5 @@ public:
     void reset();
     int viewDisksToPlace();
     void dropDisk(Disk d);
+    bool playClick();
 };

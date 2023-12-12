@@ -3,6 +3,7 @@
 #include "model.h"
 #include <SDL.h>
 #include <SDL_ttf.h>
+#include <SDL_mixer.h>
 
 class View{
 protected:
@@ -14,6 +15,8 @@ protected:
     Uint64 timeLast;
     TTF_Font* font;
     SDL_Texture* scoreTexture;
+    Mix_Chunk* ballCollideSFX;
+    int collisionSFXCooldown;
 public:
     View(Model* m);
     ~View();
