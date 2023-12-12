@@ -2,6 +2,7 @@
 
 #include "model.h"
 #include <SDL.h>
+#include <SDL_ttf.h>
 
 class View{
 protected:
@@ -11,7 +12,10 @@ protected:
     double deltaTime;
     Uint64 timeNow;
     Uint64 timeLast;
+    TTF_Font* font;
+    SDL_Texture* scoreTexture;
 public:
     View(Model* m);
+    ~View();
     void renderFrame();
 };

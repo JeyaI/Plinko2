@@ -19,10 +19,19 @@ void Controller::handleEvents(SDL_Event& e){
                 exitFlag = true;
                 break;
             case SDL_KEYDOWN:
+                switch(e.key.keysym.sym){
+                    case SDLK_r:
+                        model->reset();
+                        break;
+                    default:
+                        break;
+                }
                 model->go = true;
                 break;
             case SDL_MOUSEBUTTONUP:
-                model->viewDisks().push_back({{(double)mouseX, 40}, 20, {0.0, 0.0}, false, false});
+                if(model->viewDisksToPlace() > 0){
+                    model->dropDisk({{(double)mouseX, 40}, 20, {0.0, 0.0}, false, false});
+                }
         }
     }
 }

@@ -6,12 +6,18 @@ View::View(Model* m){
 
     SDL_Init(SDL_INIT_VIDEO);
 
+    TTF_Init();
+
+    font = TTF_OpenFont("Pixellari.ttf", 40);
+
     window = SDL_CreateWindow("Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 640, SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
     deltaTime = 0.0;
     timeNow = 0;
     timeLast = 0;
+
+    scoreTexture = nullptr;
 }
 
 void View::renderFrame(){
@@ -30,6 +36,23 @@ void View::renderFrame(){
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF); 
     SDL_RenderClear(renderer);
 
+    char scoreString[10];
+
+    if(scoreTexture){
+        SDL_DestroyTexture(scoreTexture);
+    }
+
+    SDL_Surface* scoreSurface = TTF_RenderText_Solid(font, itoa(model->viewScore(), scoreString, 10), {0xFF,0xFF,0xFF});
+    if(!scoreSurface){std::cout << TTF_GetError();};
+
+    scoreTexture = SDL_CreateTextureFromSurface(renderer, scoreSurface);
+    if(!scoreTexture){std::cout << TTF_GetError();};
+    SDL_Rect scoreRect{0,0, scoreSurface->w, scoreSurface->h};
+
+    //std::cout << scoreRect.w << " " << scoreRect.h << "\n";
+
+    SDL_FreeSurface(scoreSurface);
+
     SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
     std::vector<Disk>& disks = model->viewDisks();
     for(unsigned int i = 0; i < disks.size(); i++){
@@ -37,8 +60,15 @@ void View::renderFrame(){
         //SDL_RenderDrawLine(renderer, (int)disks[i].origin.x, (int)disks[i].origin.y, (int)disks[i].origin.x + (int)(disks[i].velocity.x), (int)disks[i].origin.y + (int)(disks[i].velocity.y));
     }
 
-    Disk& diskPreview = model->viewDiskPreview();
-    DrawCircle(renderer, {(int)diskPreview.origin.x, (int)diskPreview.origin.y}, diskPreview.radius);
+    if(model->viewDisksToPlace() > 0){
+        Disk& diskPreview = model->viewDiskPreview();
+        DrawCircle(renderer, {(int)diskPreview.origin.x, (int)diskPreview.origin.y}, diskPreview.radius);
+
+        for(int i = 0; i < model->viewDisksToPlace(); i++){
+            DrawCircle(renderer, {620, 30 + i * 40}, 10);
+        }
+
+    }
 
     SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
     std::vector<LineSegment>& lineSegments = model->viewLineSegments();
@@ -47,5 +77,14 @@ void View::renderFrame(){
         SDL_RenderDrawLine(renderer, lineSegment.pointA.x, lineSegment.pointA.y, lineSegment.pointB.x, lineSegment.pointB.y); //implicit double to int
     }
 
+    if(!SDL_RenderCopy(renderer, scoreTexture, NULL, &scoreRect)){ //draw score text
+        std::cout << SDL_GetError();
+    }
+
     SDL_RenderPresent(renderer);
+}
+
+View::~View(){
+    SDL_Quit();
+    TTF_Quit();
 }
