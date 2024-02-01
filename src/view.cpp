@@ -48,7 +48,9 @@ void View::renderFrame(){
         SDL_DestroyTexture(scoreTexture);
     }
 
-    SDL_Surface* scoreSurface = TTF_RenderText_Solid(font, itoa(model->viewScore(), scoreString, 10), {0xFF,0xFF,0xFF});
+    sprintf(scoreString, "%d", model->viewScore());
+
+    SDL_Surface* scoreSurface = TTF_RenderText_Solid(font, scoreString/*itoa(model->viewScore(), scoreString, 10)*/, {0xFF,0xFF,0xFF});
     if(!scoreSurface){std::cout << TTF_GetError();};
 
     scoreTexture = SDL_CreateTextureFromSurface(renderer, scoreSurface);
